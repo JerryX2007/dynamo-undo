@@ -21,12 +21,15 @@ for shard in shards:
 
     for r in records:
         d = r["dynamodb"]
+        change_set="untagged"
+        if "NewImage" in d and "_cs" in d["NewImage"]:
+            change_set = d["NewImage"]["_cs"]["S"]
         item_pk = d["Keys"]["pk"]["S"]
         ts = int(d["ApproximateCreationDateTime"].timestamp())
         seq = d["SequenceNumber"].zfill(40)
 
         row = {
-            "pk":     {"S": "untagged"},
+            "pk":     {"S": change_set},
             "sk":     {"S": f"{str(ts).zfill(12)}#{r['eventID']}"},
             "gsi1pk": {"S": "Products#" + item_pk},
             "gsi1sk": {"S": seq},
